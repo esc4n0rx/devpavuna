@@ -58,7 +58,7 @@ def save_to_csv(data):
     entry_exists = False
     new_data = [data['store'], data['material'], data['description'], str(data['quantity'])]  
     if file_exists:
-        with open('base.csv', mode='r', newline='') as file:
+        with open('base.csv', mode='r', newline='',encoding='utf-8') as file:
             reader = csv.reader(file)
             for row in reader:
                 
