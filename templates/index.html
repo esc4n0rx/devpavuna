@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário de Pedido</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</head>
+<body>
+   
+        {% if message %}
+        <script>alert('{{ message }}');</script>
+        {% endif %}
+        <div id="loadingModal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <div class="loader"></div>
+                <p>Gerando planilha... Por favor, aguarde.</p>
+            </div>
+        </div>
+    <div class="container">
+        <div class="card">
+            <img src="/static/img/logo.png" alt="Logo" class="logo">
+        <div class="form-group">
+            <h2>Formulario de Devolução de Loja</h2>
+            <form id="orderForm" method="POST">
+                <label for="store">Escolha a Loja:</label>
+                <select id="store" name="store" onchange="enableForm()">
+                    {% for store in stores %}
+                        <option value="{{ store }}">{{ store }}</option>
+                    {% endfor %}
+                </select>
+                <label for="material" >Material:</label>
+                <input type="text" id="material" name="material" placeholder="Codigo do Material" required disabled>
+                <label for="description">Descrição:</label>
+                <input type="text" id="description" name="description" readonly>
+                <label for="quantity">Quantidade:</label>
+                <input type="number" id="quantity" name="quantity" placeholder="Insira a Quantidade em Loja" required disabled>
+                <label for="status">Status:</label>
+                <input type="text" id="status" name="status" value="{{ status }}" readonly>
+                <div class="button-container">
+                <button type="button" onclick="cancelOrder()" disabled>Cancelar</button>
+                <button type="submit" id="submit" disabled>Enviar</button>
+                </div>
+            </div>
+            </form>
+        </div>
+    </div>
+    <footer class="footer">
+        <p>&copy; 2024 Hortifruti Natural da Terra. Todos os direitos reservados.</p>
+    </footer>    
+</body>
+</html>
