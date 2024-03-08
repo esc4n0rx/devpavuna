@@ -55,6 +55,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
         document.getElementById('loadingModal').style.display = "block";
         setTimeout(function() {
             document.getElementById('loadingModal').style.display = "none";
-        }, 6000); 
+        }, 10000); 
     });
 });

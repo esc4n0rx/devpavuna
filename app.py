@@ -5,6 +5,13 @@ import csv
 import os
 from openpyxl import load_workbook
 from openpyxl.worksheet.protection import SheetProtection
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
+from email.mime.text import MIMEText
+from email.mime.application import MIMEApplication
+
 
 
 app = Flask(__name__)
@@ -12,6 +19,37 @@ app = Flask(__name__)
 
 
 AUTHORIZED_MATERIALS = ['100000']
+
+
+
+
+
+
+def send_email_with_attachment(send_to, subject, body, file_path):
+    msg = MIMEMultipart()
+    msg['From'] = 'contato.paulooliver9@outlook.com'
+    msg['To'] = send_to
+    msg['Subject'] = subject
+
+    msg.attach(MIMEText(body, 'plain'))
+
+   
+    with open(file_path, "rb") as attachment:
+        part = MIMEApplication(
+            attachment.read(),
+            Name=os.path.basename(file_path)
+        )
+        part['Content-Disposition'] = f'attachment; filename="{os.path.basename(file_path)}"'
+        msg.attach(part)
+
+  
+    server = smtplib.SMTP('smtp.office365.com', 587)
+    server.starttls()
+   
+    server.login(msg['From'], 'Thivi8090p')  
+    text = msg.as_string()
+    server.sendmail(msg['From'], msg['To'], text)
+    server.quit()
 
 
 
@@ -56,6 +94,12 @@ def update_excel(store, material,description, quantity):
    
     new_filename = f'devolucao_{store}.xlsx'
     wb.save(new_filename)
+
+    # Adicione a chamada para enviar o e-mail aqui:
+    send_to = 'paulo.cunha@hortifruti.com.br'
+    subject = 'Planilha de Devolução'
+    body = 'Aqui está a planilha de devolução solicitada.'
+    send_email_with_attachment(send_to, subject, body, new_filename)
     return new_filename  
 
 
