@@ -11,6 +11,7 @@ from email.mime.base import MIMEBase
 from email import encoders
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
+import chardet
 
 
 
@@ -51,12 +52,17 @@ def send_email_with_attachment(send_to, subject, body, file_path):
 
 
 
+def get_encoding(file_path):
+    with open(file_path, 'rb') as file:
+        return chardet.detect(file.read())['encoding']
+
 def save_to_csv(data):
     file_exists = os.path.isfile('base.csv')
     entry_exists = False
     new_data = [data['store'], data['material'], data['description'], str(data['quantity'])]  
     if file_exists:
-        with open('base.csv', mode='r', newline='',encoding='utf-8') as file:
+        encoding = get_encoding('base.csv')
+        with open('base.csv', mode='r', newline='', encoding=encoding) as file:
             reader = csv.reader(file)
             for row in reader:
                 
