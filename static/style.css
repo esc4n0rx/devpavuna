@@ -132,33 +132,43 @@ form > *:last-child {
     text-align: center;
     padding: 10px 0;
 }
-/* Estilos existentes permanecem aqui */
-
-/* Media Queries */
 @media screen and (max-width: 768px) {
     .card {
-        width: 80%; /* Mais largo em dispositivos menores */
+        width: 80%; 
     }
     .container, .button-container, form select, form input, form button {
-        width: 90%; /* Utiliza mais espaço da tela em dispositivos menores */
+        width: 90%; 
     }
     form button {
-        width: 50%; /* Botões maiores para facilitar a interação em telas de toque */
+        width: 50%; 
     }
 }
-
 @media screen and (max-width: 480px) {
     .card {
-        width: 95%; /* Ainda mais largo em dispositivos muito pequenos */
+        width: 95%; 
     }
     .button-container {
-        flex-direction: column; /* Empilha os botões verticalmente */
+        flex-direction: column; 
         gap: 10px;
     }
     .logo {
-        max-width: 80px; /* Logo um pouco menor em telas pequenas */
+        max-width: 80px;
     }
     form button {
-        width: 60%; /* Ajuste conforme necessário para melhor visualização */
+        width: 60%; 
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .footer {
+        padding: 5px 0; 
+        font-size: 14px; 
+    }
+}
+@media screen and (max-width: 480px) {
+    .footer {
+        padding: 5px 0; 
+        font-size: 12px; 
+        text-align: center; 
     }
 }
