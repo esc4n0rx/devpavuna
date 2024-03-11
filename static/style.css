@@ -84,17 +84,17 @@ button:hover {
 form > *:last-child {
     margin-bottom: 0;
 }
-/* Estilo do modal */
+
 .modal {
-    display: none; /* Escondido por padrão */
+    display: none; 
     position: fixed;
-    z-index: 2; /* Fica no topo */
+    z-index: 2; 
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgba(0,0,0,0.4); /* Fundo escuro semi-transparente */
+    background-color: rgba(0,0,0,0.4); 
 }
 
 .modal-content {
@@ -109,8 +109,8 @@ form > *:last-child {
 }
 
 .loader {
-    border: 6px solid #f3f3f3; /* Cor de fundo */
-    border-top: 6px solid #3498db; /* Cor do spinner */
+    border: 6px solid #f3f3f3; 
+    border-top: 6px solid #3498db; 
     border-radius: 50%;
     width: 40px;
     height: 40px;
@@ -131,4 +131,34 @@ form > *:last-child {
     color: white;
     text-align: center;
     padding: 10px 0;
+}
+/* Estilos existentes permanecem aqui */
+
+/* Media Queries */
+@media screen and (max-width: 768px) {
+    .card {
+        width: 80%; /* Mais largo em dispositivos menores */
+    }
+    .container, .button-container, form select, form input, form button {
+        width: 90%; /* Utiliza mais espaço da tela em dispositivos menores */
+    }
+    form button {
+        width: 50%; /* Botões maiores para facilitar a interação em telas de toque */
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .card {
+        width: 95%; /* Ainda mais largo em dispositivos muito pequenos */
+    }
+    .button-container {
+        flex-direction: column; /* Empilha os botões verticalmente */
+        gap: 10px;
+    }
+    .logo {
+        max-width: 80px; /* Logo um pouco menor em telas pequenas */
+    }
+    form button {
+        width: 60%; /* Ajuste conforme necessário para melhor visualização */
+    }
 }

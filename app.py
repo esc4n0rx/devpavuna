@@ -21,11 +21,9 @@ app = Flask(__name__)
 AUTHORIZED_MATERIALS = ['100000']
 
 
-
-
-
-
 def send_email_with_attachment(send_to, subject, body, file_path):
+
+    #ALTERAR
     msg = MIMEMultipart()
     msg['From'] = 'contato.paulooliver9@outlook.com'
     msg['To'] = send_to
@@ -94,8 +92,10 @@ def update_excel(store, material,description, quantity):
    
     new_filename = f'devolucao_{store}.xlsx'
     wb.save(new_filename)
+    
 
-    # Adicione a chamada para enviar o e-mail aqui:
+
+    #ALTERAR
     send_to = 'paulo.cunha@hortifruti.com.br'
     subject = 'Planilha de Devolução'
     body = 'Aqui está a planilha de devolução solicitada.'
@@ -109,6 +109,8 @@ def get_description():
     material = request.args.get('material')
     description = ''  
     authorized = material in AUTHORIZED_MATERIALS  
+
+     #ALTERAR
     with open('banco_dados.csv', mode='r', newline='', encoding='utf-8') as file:
         reader = csv.reader(file)
         for row in reader:
@@ -119,6 +121,8 @@ def get_description():
 
 def get_stores():
     stores = []
+
+     #ALTERAR
     with open('loja.csv', mode='r', encoding='utf-8') as file:
         reader = csv.reader(file)
         for row in reader:
@@ -132,6 +136,9 @@ def index():
     message = ''
     stores = get_stores() 
 
+
+
+    #ALTERAR
     status = "Atenção Devolver com o Físico" 
 
     if request.method == 'POST':
