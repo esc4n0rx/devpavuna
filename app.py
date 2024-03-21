@@ -60,32 +60,35 @@ def get_encoding(file_path):
 
     
 
-def update_excel(store, material,description, quantity):
-    filename = 'devolucao.xlsx' 
-    wb = load_workbook(filename)
-    ws = wb.active  
-
+def update_excel(store, material, description, quantity):
+   
+    source_filename = 'devolucao.xlsx'
+    
+   
+    wb = load_workbook(source_filename)
+    ws = wb.active
+    
+   
     ws['G7'] = store
     ws['C14'] = material
     ws['D14'] = description
     ws['H14'] = quantity
     ws['L14'] = "Robo"
-
-
+    
+    
     ws.protection = SheetProtection(sheet=True, password='thivi8090#', objects=True, scenarios=True)
-
-   
-    new_filename = f'devolucao_{store}.xlsx'
+    
+    
+    temp_dir = '/tmp'
+    new_filename = os.path.join(temp_dir, f'devolucao_{store}.xlsx')
     wb.save(new_filename)
     
-
-
-    #ALTERAR
     send_to = 'paulo.cunha@hortifruti.com.br'
     subject = 'Planilha de Devolução'
     body = 'Aqui está a planilha de devolução solicitada.'
     send_email_with_attachment(send_to, subject, body, new_filename)
-    return new_filename  
+    
+    return new_filename
 
 
     
