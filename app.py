@@ -12,6 +12,8 @@ from email import encoders
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 import chardet
+from base import lojas
+from materials import materials
 
 
 
@@ -56,29 +58,6 @@ def get_encoding(file_path):
     with open(file_path, 'rb') as file:
         return chardet.detect(file.read())['encoding']
 
-def save_to_csv(data):
-    file_exists = os.path.isfile('base.csv')
-    entry_exists = False
-    new_data = [data['store'], data['material'], data['description'], str(data['quantity'])]  
-    if file_exists:
-        encoding = get_encoding('base.csv')
-        with open('base.csv', mode='r', newline='', encoding=encoding) as file:
-            reader = csv.reader(file)
-            for row in reader:
-                
-                if row == new_data:
-                    entry_exists = True
-                    break
-
-    if not entry_exists:
-        with open('base.csv', mode='a', newline='') as file:
-            writer = csv.writer(file)
-            if not file_exists:
-                writer.writerow(['store', 'material', 'description', 'quantity'])  
-            writer.writerow(new_data)
-        return False  
-    else:
-        return True 
     
 
 def update_excel(store, material,description, quantity):
@@ -113,26 +92,23 @@ def update_excel(store, material,description, quantity):
 @app.route('/get-description')
 def get_description():
     material = request.args.get('material')
-    description = ''  
-    authorized = material in AUTHORIZED_MATERIALS  
+    description = ''
+    authorized = material in AUTHORIZED_MATERIALS 
 
-     #ALTERAR
-    with open('banco_dados.csv', mode='r', newline='', encoding='utf-8') as file:
-        reader = csv.reader(file)
-        for row in reader:
-            if row[0].strip() == material:
-                description = row[1]
-                break
+    if material:
+        material = int(material)  
+        description = materials.get(material, '')  
+
     return jsonify(description=description, authorized=authorized)
+
+
 
 def get_stores():
     stores = []
 
-     #ALTERAR
-    with open('loja.csv', mode='r', encoding='utf-8') as file:
-        reader = csv.reader(file)
-        for row in reader:
-            stores.append(row[0])
+    for store_name in lojas:
+        stores.append(store_name)
+    
     return stores
 
 
@@ -142,10 +118,8 @@ def index():
     message = ''
     stores = get_stores() 
 
-
-
-    #ALTERAR
-    status = "Atenção Devolver com o Físico" 
+    
+    status = "Atenção Devolver com o Físico"
 
     if request.method == 'POST':
         store = request.form.get('store')
@@ -154,17 +128,10 @@ def index():
         description = request.form.get('description')
         print(f"Received description: {description}")
 
-        data = {'store': store, 'material': material, 'description': description, 'quantity': quantity}
+        new_filename = update_excel(store, material, description, quantity) 
+        return send_file(new_filename, as_attachment=True, download_name=new_filename)
 
-        if not save_to_csv(data):  
-            new_filename = update_excel(store, material, description, quantity)
-
-            return send_file(new_filename, as_attachment=True, download_name=new_filename)
-        else:
-            message = 'Registro já existente.'
-
-    return render_template('index.html', message=message, stores=stores,status=status)
-
+    return render_template('index.html', message=message, stores=stores, status=status)
 
 
 if __name__ == '__main__':
