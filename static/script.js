@@ -58,3 +58,15 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }, 10000); 
     });
 });
+function openModal() {
+    document.getElementById('configModal').style.display = 'block';
+}
+
+function closeModal() {
+    document.getElementById('configModal').style.display = 'none';
+}
+
+
+
+
+

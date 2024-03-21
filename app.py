@@ -33,21 +33,25 @@ def configurations():
    
     return render_template('config.html', authorized_materials=', '.join(AUTHORIZED_MATERIALS), status=status)
 
+@app.route('/check-password', methods=['POST'])
+def check_password():
+    password = request.form.get('password')
+    if password == '2024': 
+        return redirect(url_for('configurations')) 
+    else:
+        return redirect(url_for('index', message='Senha incorreta!'))
 
 @app.route('/update-settings', methods=['POST'])
 def update_settings():
-
-    global AUTHORIZED_MATERIALS  
-    global status 
+    global AUTHORIZED_MATERIALS
+    global status
     authorized_materials = request.form.get('authorized_materials').split(',')
     status = request.form.get('status')
-   
-    AUTHORIZED_MATERIALS = [material.strip() for material in authorized_materials] 
-   
+
+    AUTHORIZED_MATERIALS = [material.strip() for material in authorized_materials]
     status = status
     socketio.emit('update_notification', {'message': 'Configurações atualizadas!'})
     return redirect(url_for('configurations'))
-
 
 @app.route('/clear-settings', methods=['POST'])
 def clear_settings():
@@ -55,7 +59,8 @@ def clear_settings():
     global status
     AUTHORIZED_MATERIALS = []  
     status = ""  
-    return redirect(url_for('configurations'))
+    return redirect(url_for('configurations'))  # Mudança feita aqui
+
 
 def send_email_with_attachment(send_to, subject, body, file_path):
 
@@ -164,6 +169,9 @@ def index():
         return send_file(new_filename, as_attachment=True, download_name=new_filename)
 
     return render_template('index.html', message=message, stores=stores, status=status)
+
+
+
 
 
 
