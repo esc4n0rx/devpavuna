@@ -11,5 +11,11 @@
             "src": "/(.*)",
             "dest": "app.py"
         }
-    ]
+    ],
+    "functions": {
+        "api/**/*.py": {
+            "runtime": "python3.9@vercel/python@latest",
+            "maxDuration": 30
+        }
+    }
 }
