@@ -20,6 +20,7 @@
     <div class="container">
         <div class="card">
             <img src="/static/img/logo.png" alt="Logo" class="logo">
+            <img src="{{ url_for('static', filename='img/settings.png') }}" alt="Configurações" class="settings-icon" onclick="openModal()">
         <div class="form-group">
             <h2>Formulario de Devolução de Loja</h2>
             <form id="orderForm" method="POST">
@@ -45,5 +46,15 @@
             </form>
         </div>
     </div> 
+    <div id="configModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <form id="passwordForm" action="/check-password" method="POST">
+                <label for="password">Senha:</label>
+                <input type="password" id="password" name="password" required>
+                <button type="submit">Entrar</button>
+            </form>
+        </div>
+    </div>    
 </body>
 </html>
