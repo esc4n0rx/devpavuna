@@ -14,15 +14,48 @@ from email.mime.application import MIMEApplication
 import chardet
 from base import lojas
 from materials import materials
+from flask_socketio import SocketIO, emit
 
 
 
 app = Flask(__name__)
+socketio = SocketIO(app)
+
+
+AUTHORIZED_MATERIALS = []  
+status = "" 
 
 
 
-AUTHORIZED_MATERIALS = ['100000']
 
+@app.route('/config', methods=['GET'])
+def configurations():
+   
+    return render_template('config.html', authorized_materials=', '.join(AUTHORIZED_MATERIALS), status=status)
+
+
+@app.route('/update-settings', methods=['POST'])
+def update_settings():
+
+    global AUTHORIZED_MATERIALS  
+    global status 
+    authorized_materials = request.form.get('authorized_materials').split(',')
+    status = request.form.get('status')
+   
+    AUTHORIZED_MATERIALS = [material.strip() for material in authorized_materials] 
+   
+    status = status
+    socketio.emit('update_notification', {'message': 'Configurações atualizadas!'})
+    return redirect(url_for('configurations'))
+
+
+@app.route('/clear-settings', methods=['POST'])
+def clear_settings():
+    global AUTHORIZED_MATERIALS
+    global status
+    AUTHORIZED_MATERIALS = []  
+    status = ""  
+    return redirect(url_for('configurations'))
 
 def send_email_with_attachment(send_to, subject, body, file_path):
 
@@ -121,15 +154,11 @@ def index():
     message = ''
     stores = get_stores() 
 
-    
-    status = "Atenção Devolver com o Físico"
-
     if request.method == 'POST':
         store = request.form.get('store')
         material = request.form.get('material')
         quantity = request.form.get('quantity')
         description = request.form.get('description')
-        print(f"Received description: {description}")
 
         new_filename = update_excel(store, material, description, quantity) 
         return send_file(new_filename, as_attachment=True, download_name=new_filename)
@@ -137,5 +166,6 @@ def index():
     return render_template('index.html', message=message, stores=stores, status=status)
 
 
+
 if __name__ == '__main__':
-    app.run(debug=True,host="0.0.0.0",port=5000)
+    socketio.run(app, debug=True, host="0.0.0.0", port=5000)

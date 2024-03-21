@@ -1,0 +1,67 @@
+<!-- configurations.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+    <title>Configurações</title>
+    <style>
+        body {
+            background: linear-gradient(to right, #33ccff, #ff99cc);
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header div {
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Configurações</h1>
+            <div id="date-time"></div>
+        </div>
+        <form action="/update-settings" method="post">
+            <label for="authorized-materials">Materiais Autorizados (separados por vírgula):</label><br>
+            <input type="text" id="authorized-materials" name="authorized_materials" size="50"><br><br>
+            <label for="status">Status:</label><br>
+            <input type="text" id="status" name="status" size="50"><br><br>
+            <input type="submit" value="Atualizar Configurações">
+            <form action="/clear-settings" method="post">
+                <input type="submit" value="Limpar Configurações">
+            </form>
+        </form>
+    </div>
+    <script>
+        function updateDateTime() {
+            const now = new Date();
+            const dateTimeStr = now.toLocaleString();
+            document.getElementById("date-time").innerHTML = dateTimeStr;
+        }
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
+    </script>
+
+<script>
+    var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+    socket.on('update_notification', function(data) {
+        alert(data.message);
+    });
+</script>
+</body>
+</html>
