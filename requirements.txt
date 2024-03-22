@@ -7,5 +7,7 @@ chardet
 Flask-SocketIO
 reportlab
 email-validator
+pytest 
+Flask-Testing
 
 
