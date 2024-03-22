@@ -8,12 +8,21 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
     <title>Configurações</title>
     <style>
+        :root {
+        --cor-fundo: #1a1a1a;
+        --cor-container: #2d2d2d;
+        --cor-destaque: #875742;
+        --cor-botao: #a87058;
+        --cor-botao-hover: #8d6049;
+        --cor-quase-branco: #ffffff;
+        --cor-hfnt:#5e462f;
+        }
         body {
-            background: linear-gradient(to right, #33ccff, #ff99cc);
+            background: var( --cor-destaque);
             font-family: Arial, sans-serif;
         }
         .container {
-            width: 80%;
+            width: 50%;
             margin: 20px auto;
             background-color: rgba(255, 255, 255, 0.8);
             padding: 20px;
@@ -27,6 +36,15 @@
         .header div {
             margin: 0 10px;
         }
+        select, input, button {
+            display: block;
+            width: 40%;
+            padding: 8px;
+            margin-bottom: 20px;
+            border-radius: 5px; 
+            border: 0.5px solid 
+        }
+
     </style>
 </head>
 <body>
@@ -55,7 +73,6 @@
         setInterval(updateDateTime, 1000);
         updateDateTime();
     </script>
-
 <script>
     var socket = io.connect('http://' + document.domain + ':' + location.port);
 

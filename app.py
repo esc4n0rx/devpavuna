@@ -1,11 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for,jsonify
 from flask import send_file
 from werkzeug.utils import secure_filename, safe_join
-import csv
 import os
-from openpyxl import load_workbook
-from openpyxl.worksheet.protection import SheetProtection
 import smtplib
+from datetime import datetime, timedelta
+
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
@@ -29,11 +28,14 @@ status = ""
 
 
 
+#ROTA DE CONFIGURAÇOES
 @app.route('/config', methods=['GET'])
 def configurations():
    
     return render_template('config.html', authorized_materials=', '.join(AUTHORIZED_MATERIALS), status=status)
 
+
+#FUNção DE VERIFICAR SENHA
 @app.route('/check-password', methods=['POST'])
 def check_password():
     password = request.form.get('password')
@@ -42,6 +44,8 @@ def check_password():
     else:
         return redirect(url_for('index', message='Senha incorreta!'))
 
+
+#FUNção DE ATUALIZAR CONFIGURAÇOES DE ITENS E STATUS
 @app.route('/update-settings', methods=['POST'])
 def update_settings():
     global AUTHORIZED_MATERIALS
@@ -54,6 +58,8 @@ def update_settings():
     socketio.emit('update_notification', {'message': 'Configurações atualizadas!'})
     return redirect(url_for('configurations'))
 
+
+#FUNÇÃO DE LIMPAR CONFIGURAÇOES
 @app.route('/clear-settings', methods=['POST'])
 def clear_settings():
     global AUTHORIZED_MATERIALS
@@ -63,6 +69,8 @@ def clear_settings():
     return redirect(url_for('configurations')) 
 
 
+
+#FUNção DE ENVIO DE E-MAIL
 def send_email_with_attachment(send_to, subject, body, file_path):
 
     
@@ -92,76 +100,57 @@ def send_email_with_attachment(send_to, subject, body, file_path):
     server.quit()
 
 
-
-def create_pdf(store, material, description, quantity, authorized_by='Formulario Automizado'):
-    temp_dir = '/tmp'
+#FUNÇÃO PARA CRIAR O PDF DE AUTORIZAÇÃO DA LOJA
+def create_pdf(store, material, description, quantity, authorized_by='Formulário Automatizado'):
+    project_root_dir = '.'  
     filename = f'devolucao_{store}.pdf'
-    file_path = os.path.join(temp_dir, filename)
-
+    file_path = os.path.join(project_root_dir, filename)
+    
     c = canvas.Canvas(file_path, pagesize=letter)
     width, height = letter
 
     
-    c.setFont("Helvetica-Bold", 16)
-    c.drawCentredString(width / 2.0, height - 50, "Autorização de Devolução")
-
-    
-    c.setFont("Helvetica", 12)
-    c.drawString(100, 750, f'Loja: {store}')
-    c.drawString(100, 730, f'Material: {material}')
-    c.drawString(100, 710, f'Descrição: {description}')
-    c.drawString(100, 690, f'Quantidade: {quantity}')
-    c.drawString(100, 670, f'Autorizado por: {authorized_by}')
-
-    
-    c.setFont("Helvetica-Oblique", 10)
-    c.drawCentredString(width / 2.0, 30, "Este documento é válido para a devolução dos materiais listados acima.")
+    logo_path = os.path.join(project_root_dir, 'static/img/basepdf.png')
+    logo_size = 50
+    c.drawImage(logo_path, 100, height - 40, width=logo_size, height=logo_size, preserveAspectRatio=True)
 
    
+    c.setFont("Helvetica-Bold", 16)
+    c.drawCentredString(width / 2.0, height - 70, "AUTORIZAÇÃO DE DEVOLUÇÃO DE MERCADORIA EM EXCEÇÃO")
+    c.setFont("Helvetica-Oblique", 12)
+    c.drawCentredString(width / 2.0, height - 90, "(Anexar junto à Nota Fiscal)")
+
+    
+    today = datetime.now()
+    max_date = today + timedelta(days=3)
+    date_format = "%d/%m/%Y"
+    
+    
+    content_start_y_position = height - 130
+    line_spacing = 18  
+
+    c.setFont("Helvetica", 12)
+    c.drawCentredString(width / 2.0, content_start_y_position, f'Loja: {store}')
+    c.drawCentredString(width / 2.0, content_start_y_position - line_spacing, f'Material: {material}')
+    c.drawCentredString(width / 2.0, content_start_y_position - 2 * line_spacing, f'Descrição: {description}')
+    c.drawCentredString(width / 2.0, content_start_y_position - 3 * line_spacing, f'Quantidade: {quantity}')
+    c.drawCentredString(width / 2.0, content_start_y_position - 4 * line_spacing, f'Autorizado por: {authorized_by}')
+    c.drawCentredString(width / 2.0, content_start_y_position - 5 * line_spacing, f'Data da Autorização: {today.strftime(date_format)}')
+    c.drawCentredString(width / 2.0, content_start_y_position - 6 * line_spacing, f'Data Máxima para Envio: {max_date.strftime(date_format)}')
+
+   
+    c.setFont("Helvetica-Oblique", 10)
+    footer_y_position = 30
+    c.drawCentredString(width / 2.0, footer_y_position, "Este documento é válido para a devolução dos materiais listados acima.")
+
+    
     c.save()
 
+    print(f"Arquivo PDF gerado: {file_path}")
     return file_path
 
-
-
-def get_encoding(file_path):
-    with open(file_path, 'rb') as file:
-        return chardet.detect(file.read())['encoding']
-
-    
-
-def update_excel(store, material, description, quantity):
-   
-    source_filename = 'devolucao.xlsx'
-    
-   
-    wb = load_workbook(source_filename)
-    ws = wb.active
-    
-   
-    ws['G7'] = store
-    ws['C14'] = material
-    ws['D14'] = description
-    ws['H14'] = quantity
-    ws['L14'] = "Robo"
-    
-    
-    ws.protection = SheetProtection(sheet=True, password='thivi8090#', objects=True, scenarios=True)
-    
-    
-    temp_dir = '/tmp'
-    new_filename = os.path.join(temp_dir, f'devolucao_{store}.xlsx')
-    wb.save(new_filename)
-    
-    send_to = 'paulo.cunha@hortifruti.com.br'
-    subject = 'Planilha de Devolução'
-    body = 'Aqui está a planilha de devolução solicitada.'
-    send_email_with_attachment(send_to, subject, body, new_filename)
-    
-    return new_filename
-
-
-    
+  
+#FUNÇÃO QUE RETORNA A DESCRISÃO DO MATERIAL 
 @app.route('/get-description')
 def get_description():
     material = request.args.get('material')
@@ -175,7 +164,7 @@ def get_description():
     return jsonify(description=description, authorized=authorized)
 
 
-
+#FUNção QUE RETORNA AS LOJAS
 def get_stores():
     stores = []
 
@@ -185,7 +174,7 @@ def get_stores():
     return stores
 
 
-
+#ROTA PRINCIPAL
 @app.route('/', methods=['GET', 'POST'])
 def index():
     message = ''
