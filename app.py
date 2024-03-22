@@ -4,7 +4,6 @@ from werkzeug.utils import secure_filename, safe_join
 import os
 import smtplib
 from datetime import datetime, timedelta
-
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
@@ -17,6 +16,7 @@ from flask_socketio import SocketIO, emit
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
+from configs import EMAIL_SETTINGS
 
 
 app = Flask(__name__)
@@ -72,16 +72,18 @@ def clear_settings():
 
 #FUNção DE ENVIO DE E-MAIL
 def send_email_with_attachment(send_to, subject, body, file_path):
+    email_user = EMAIL_SETTINGS['EMAIL_USER']
+    email_password = EMAIL_SETTINGS['EMAIL_PASSWORD']
+    smtp_server = EMAIL_SETTINGS['SMTP_SERVER']
+    smtp_port = EMAIL_SETTINGS['SMTP_PORT']
 
-    
     msg = MIMEMultipart()
-    msg['From'] = 'contato.paulooliver9@outlook.com'
+    msg['From'] = email_user
     msg['To'] = send_to
     msg['Subject'] = subject
 
     msg.attach(MIMEText(body, 'plain'))
 
-   
     with open(file_path, "rb") as attachment:
         part = MIMEApplication(
             attachment.read(),
@@ -90,13 +92,11 @@ def send_email_with_attachment(send_to, subject, body, file_path):
         part['Content-Disposition'] = f'attachment; filename="{os.path.basename(file_path)}"'
         msg.attach(part)
 
-  
-    server = smtplib.SMTP('smtp.office365.com', 587)
+    server = smtplib.SMTP(smtp_server, smtp_port)
     server.starttls()
-   
-    server.login(msg['From'], 'Thivi8090p')  
+    server.login(email_user, email_password)
     text = msg.as_string()
-    server.sendmail(msg['From'], msg['To'], text)
+    server.sendmail(email_user, msg['To'], text)
     server.quit()
 
 
