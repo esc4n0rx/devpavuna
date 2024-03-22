@@ -1,25 +1,45 @@
-import os
 import pytest
-from flask_testing import TestCase
-from app import app
+from flask import template_rendered
+from contextlib import contextmanager
+from app import app  
 
-class MyTest(TestCase):
+@pytest.fixture
+def client():
+    app.config['TESTING'] = True
+    with app.test_client() as client:
+        yield client
 
-    def create_app(self):
-        
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'  
-        return app
+@contextmanager
+def captured_templates(app):
+    recorded = []
+    def record(sender, template, context, **extra):
+        recorded.append((template, context))
+    template_rendered.connect(record, app)
+    try:
+        yield recorded
+    finally:
+        template_rendered.disconnect(record, app)
 
-    def setUp(self):
+def test_index_page(client):
+    """Testa se a página inicial pode ser acessada."""
+    rv = client.get('/')
+    assert rv.status_code == 200
+    assert b'Formulario de' in rv.data  
+
+def test_configurations_page(client):
+    """Testa se a página de configurações pode ser acessada."""
+    rv = client.get('/config')
+    assert rv.status_code == 200
+    
+
+def test_get_description(client):
+    """Testa a funcionalidade de obter descrição de materiais."""
+    with captured_templates(app) as templates:
+        rv = client.get('/get-description?material=12345')
+        assert rv.status_code == 200
+        assert len(templates) == 1
+        template, context = templates[0]
+        assert 'description' in context
       
-        db.create_all()
-
-    def tearDown(self):
-        
-        db.session.remove()
-        db.drop_all()
 
 
-def test_example():
-    assert True 

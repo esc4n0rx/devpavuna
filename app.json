@@ -1,21 +1,13 @@
 {
+    "scripts": {
+      "test": "pytest"
+    },
     "environments": {
       "test": {
         "scripts": {
-          "test": "pytest test.py"
-        },
-        "addons": [
-          "heroku-postgresql"  
-        ],
-        "env": {
-          "FLASK_CONFIG": "testing"
-        },
-        "formation": {},
-        "buildpacks": [
-          {
-            "url": "heroku/python"
-          }
-        ]
+          "test-setup": "echo 'Setting up tests...'",
+          "test": "pytest"
+        }
       }
     }
   }
