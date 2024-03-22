@@ -15,7 +15,9 @@ import chardet
 from base import lojas
 from materials import materials
 from flask_socketio import SocketIO, emit
-
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import inch
 
 
 app = Flask(__name__)
@@ -24,7 +26,6 @@ socketio = SocketIO(app)
 
 AUTHORIZED_MATERIALS = []  
 status = "" 
-
 
 
 
@@ -59,12 +60,12 @@ def clear_settings():
     global status
     AUTHORIZED_MATERIALS = []  
     status = ""  
-    return redirect(url_for('configurations'))  # Mudança feita aqui
+    return redirect(url_for('configurations')) 
 
 
 def send_email_with_attachment(send_to, subject, body, file_path):
 
-    #ALTERAR
+    
     msg = MIMEMultipart()
     msg['From'] = 'contato.paulooliver9@outlook.com'
     msg['To'] = send_to
@@ -89,6 +90,37 @@ def send_email_with_attachment(send_to, subject, body, file_path):
     text = msg.as_string()
     server.sendmail(msg['From'], msg['To'], text)
     server.quit()
+
+
+
+def create_pdf(store, material, description, quantity, authorized_by='Formulario Automizado'):
+    temp_dir = '/tmp'
+    filename = f'devolucao_{store}.pdf'
+    file_path = os.path.join(temp_dir, filename)
+
+    c = canvas.Canvas(file_path, pagesize=letter)
+    width, height = letter
+
+    
+    c.setFont("Helvetica-Bold", 16)
+    c.drawCentredString(width / 2.0, height - 50, "Autorização de Devolução")
+
+    
+    c.setFont("Helvetica", 12)
+    c.drawString(100, 750, f'Loja: {store}')
+    c.drawString(100, 730, f'Material: {material}')
+    c.drawString(100, 710, f'Descrição: {description}')
+    c.drawString(100, 690, f'Quantidade: {quantity}')
+    c.drawString(100, 670, f'Autorizado por: {authorized_by}')
+
+    
+    c.setFont("Helvetica-Oblique", 10)
+    c.drawCentredString(width / 2.0, 30, "Este documento é válido para a devolução dos materiais listados acima.")
+
+   
+    c.save()
+
+    return file_path
 
 
 
@@ -157,7 +189,7 @@ def get_stores():
 @app.route('/', methods=['GET', 'POST'])
 def index():
     message = ''
-    stores = get_stores() 
+    stores = get_stores()
 
     if request.method == 'POST':
         store = request.form.get('store')
@@ -165,10 +197,11 @@ def index():
         quantity = request.form.get('quantity')
         description = request.form.get('description')
 
-        new_filename = update_excel(store, material, description, quantity) 
-        return send_file(new_filename, as_attachment=True, download_name=new_filename)
+        new_filename = create_pdf(store, material, description, quantity)
+        return send_file(new_filename, as_attachment=True, download_name=os.path.basename(new_filename))
 
     return render_template('index.html', message=message, stores=stores, status=status)
+
 
 
 
