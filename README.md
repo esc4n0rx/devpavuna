@@ -41,5 +41,5 @@ Este projeto é licenciado sob a Licença MIT. Consulte o arquivo [LICENSE](LICE
 
 ## Autor
 
-- **Seu Nome** - [esc4n0rx](https://github.com/SeuNomeDeUsuário)
+- **Paulo Mauricio Oliveira** - [esc4n0rx](https://github.com/SeuNomeDeUsuário)
 
