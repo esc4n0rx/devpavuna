@@ -46,6 +46,11 @@ def create_pdf(store, material, description, quantity, authorized_by='Formulári
     c.setFillColorRGB(0, 0, 0) 
     c.drawCentredString(width / 2.0, height / 2.0, "Proibido Alterações")
 
+
+    # Restaurar a opacidade para o restante do texto
+    c.setFillAlpha(1)
+    c.setFillColorRGB(1, 1, 1)  
+
     # Adicionar logo
     #logo_path = os.path.join(project_root_dir, 'static/img/logo.png')  # Caminho para a logo
     #c.drawImage(logo_path, 100, height - 100, width=2*inch, height=0.5*inch)
@@ -67,19 +72,19 @@ def create_pdf(store, material, description, quantity, authorized_by='Formulári
     # Configurar detalhes do produto
     c.drawString(100, height - 220, f'DESCRICÃO DO PRODUTO: {description}')
     c.drawString(100, height - 240, f'QUANTIDADE: {quantity}')
-    c.drawString(400, height - 240, f'VALIDADE: {"-"}')  # Substitua "-" pela validade se aplicável
-    c.drawString(100, height - 260, f'LOTE: {"-"}')  # Substitua "-" pelo lote se aplicável
+    c.drawString(400, height - 240, f'VALIDADE: {"-"}') 
+    c.drawString(100, height - 260, f'LOTE: {"-"}') 
 
     # Configurar autorização e motivo da devolução
-    c.drawString(100, height - 280, f'DEVOLUÇÃO COM O FÍSICO: {"Sim"}')  # Ajuste conforme necessário
+    c.drawString(100, height - 280, f'DEVOLUÇÃO COM O FÍSICO: {"Sim"}') 
     c.drawString(100, height - 300, f'NOME DE QUEM AUTORIZOU: {authorized_by}')
-    c.drawString(100, height - 320, f'QUEM AUTORIZOU CD OU COMERCIAL: {"CD"}')  # Ajuste conforme necessário
+    c.drawString(100, height - 320, f'QUEM AUTORIZOU CD OU COMERCIAL: {"CD"}')  
     c.drawString(100, height - 340, f'MOTIVO DEVOLUÇÃO: {motivo_devolucao}')
 
     # Configurar validação do documento
     c.setFont("Helvetica-Oblique", 10)
     footer_start_y_position = 100  # Início do rodapé na página
-    c.drawString(50, footer_start_y_position, "1° O formulário deve seguir anexo totalmente preenchido juntamente com a NF.")
+    c.drawString(50, footer_start_y_position, "1° O formulário deve seguir anexo com a NF.")
     c.drawString(50, footer_start_y_position - 15, "2° A quantidade informada deverá ser exata ao que constar no formulário.")
     c.drawString(50, footer_start_y_position - 30, "3° A mercadoria só poderá retornar ao CD se estiver íntegra.")
 
