@@ -4,4 +4,13 @@ gunicorn==20.1.0
 Werkzeug==2.0.1
 openpyxl==3.0.7
 chardet
+<<<<<<< HEAD
+=======
+Flask-SocketIO
+reportlab
+email-validator
+pytest 
+Flask-Testing
+
+>>>>>>> main
 

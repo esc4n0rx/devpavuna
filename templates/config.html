@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 <!-- configurations.html -->
+=======
+>>>>>>> main
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,6 +11,7 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
     <title>Configurações</title>
     <style>
+<<<<<<< HEAD
         body {
             background: linear-gradient(to right, #33ccff, #ff99cc);
             font-family: Arial, sans-serif;
@@ -18,14 +22,74 @@
             background-color: rgba(255, 255, 255, 0.8);
             padding: 20px;
             border-radius: 8px;
+=======
+        :root {
+            --cor-fundo: #1a1a1a;
+            --cor-container: #2d2d2d;
+            --cor-destaque: #875742;
+            --cor-botao: #a87058;
+            --cor-botao-hover: #8d6049;
+            --cor-quase-branco: #ffffff;
+            --cor-hfnt: #5e462f;
+        }
+        body {
+            background: var(--cor-fundo);
+            font-family: Arial, sans-serif;
+            color: var(--cor-quase-branco);
+        }
+        .container {
+            width: 50%;
+            margin: 20px auto;
+            background-color: var(--cor-container);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+>>>>>>> main
         }
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
+<<<<<<< HEAD
         .header div {
             margin: 0 10px;
+=======
+        .date-time-widget {
+            background: var(--cor-destaque);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        select, input, button {
+            display: block;
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 20px;
+            border-radius: 5px; 
+            border: none;
+            background: var(--cor-quase-branco);
+        }
+        button:hover, input[type="submit"]:hover {
+            background-color: var(--cor-botao-hover);
+            cursor: pointer;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            background-color: var(--cor-botao);
+            color: var(--cor-quase-branco);
+            padding: 8px 15px;
+            border-radius: 5px;
+        }
+        .back-link:hover {
+            background-color: var(--cor-botao-hover);
+        }
+        .subtitle {
+            color: var(--cor-quase-branco);
+            margin-bottom: 20px;
+>>>>>>> main
         }
     </style>
 </head>
@@ -33,6 +97,7 @@
     <div class="container">
         <div class="header">
             <h1>Configurações</h1>
+<<<<<<< HEAD
             <div id="date-time"></div>
         </div>
         <form action="/update-settings" method="post">
@@ -45,6 +110,22 @@
                 <input type="submit" value="Limpar Configurações">
             </form>
         </form>
+=======
+            <div class="date-time-widget" id="date-time"></div>
+        </div>
+        <h2 class="subtitle">Ajuste as configurações do Forms:</h2>
+        <form action="/update-settings" method="post">
+            <label for="authorized-materials">Materiais Autorizados (separados por vírgula):</label>
+            <input type="text" id="authorized-materials" name="authorized_materials">
+            <label for="status">Status:</label>
+            <input type="text" id="status" name="status">
+            <input type="submit" value="Atualizar Configurações">
+        </form>
+        <form action="/clear-settings" method="post">
+            <input type="submit" value="Limpar Configurações">
+        </form>
+        <a href="/" class="back-link">Voltar ao Início</a>
+>>>>>>> main
     </div>
     <script>
         function updateDateTime() {
@@ -55,6 +136,7 @@
         setInterval(updateDateTime, 1000);
         updateDateTime();
     </script>
+<<<<<<< HEAD
 
 <script>
     var socket = io.connect('http://' + document.domain + ':' + location.port);
@@ -63,5 +145,13 @@
         alert(data.message);
     });
 </script>
+=======
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+        socket.on('update_notification', function(data) {
+            alert(data.message);
+        });
+    </script>
+>>>>>>> main
 </body>
 </html>

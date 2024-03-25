@@ -4,7 +4,11 @@ document.addEventListener('DOMContentLoaded', (event) => {
         const store = document.getElementById('store').value;
         const material = document.getElementById('material');
         const quantity = document.getElementById('quantity');
+<<<<<<< HEAD
         const description = document.getElementById('description'); // Garantindo que description também seja acessível
+=======
+        const description = document.getElementById('description');
+>>>>>>> main
         const buttons = document.querySelectorAll('button');
 
         if (store) {
@@ -55,7 +59,11 @@ document.addEventListener('DOMContentLoaded', (event) => {
         document.getElementById('loadingModal').style.display = "block";
         setTimeout(function() {
             document.getElementById('loadingModal').style.display = "none";
+<<<<<<< HEAD
         }, 10000); 
+=======
+        },2000); 
+>>>>>>> main
     });
 });
 function openModal() {
