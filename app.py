@@ -15,9 +15,12 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.colors import HexColor
 from datetime import datetime, timedelta
 import os
+from configs import EMAIL_SETTINGS
 
 
 app = Flask(__name__)
+
+
 socketio = SocketIO(app)
 
 
@@ -47,7 +50,7 @@ def create_pdf(store, material, description, quantity, authorized_by='Formulári
     c.drawCentredString(width / 2.0, height / 2.0, "Proibido Alterações")
 
 
-    # Restaurar a opacidade para o restante do texto
+    # Restaurar a opacidade
     c.setFillAlpha(1)
     c.setFillColorRGB(1, 1, 1)  
 
@@ -63,7 +66,7 @@ def create_pdf(store, material, description, quantity, authorized_by='Formulári
 
     # Configurar informações da autorização
     today = datetime.now()
-    max_date = today + timedelta(days=6)  # Ajuste de acordo com sua lógica
+    max_date = today + timedelta(days=3)
     c.setFont("Helvetica", 12)
     c.drawString(100, height - 160, f'LOJA/UNIDADE: {store}')
     c.drawString(400, height - 160, f'DATA DA AUTORIZAÇÃO: {today.strftime("%d/%m/%Y")}')
@@ -83,7 +86,7 @@ def create_pdf(store, material, description, quantity, authorized_by='Formulári
 
     # Configurar validação do documento
     c.setFont("Helvetica-Oblique", 10)
-    footer_start_y_position = 100  # Início do rodapé na página
+    footer_start_y_position = 100 
     c.drawString(50, footer_start_y_position, "1° O formulário deve seguir anexo com a NF.")
     c.drawString(50, footer_start_y_position - 15, "2° A quantidade informada deverá ser exata ao que constar no formulário.")
     c.drawString(50, footer_start_y_position - 30, "3° A mercadoria só poderá retornar ao CD se estiver íntegra.")
@@ -189,11 +192,11 @@ def get_description():
     return jsonify(description=description, authorized=authorized)
 
 
-# Esta função retorna uma lista de nomes de lojas. É usada para popular dropdowns ou listas na interface do usuário.
+# Esta função retorna uma lista de nomes de lojas. É usada para popular dropdown do formulário.
 def get_stores():
     stores = []  # Inicializa a lista de lojas
 
-    # Percorre a lista 'lojas' (assumindo que está pré-definida em algum lugar) e adiciona cada nome de loja à lista 'stores'
+    # Percorre a lista 'lojas'
     for store_name in lojas:
         stores.append(store_name)
     
