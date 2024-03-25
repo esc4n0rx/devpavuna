@@ -1,21 +1,17 @@
 {
     "version": 2,
     "builds": [
-        {
-            "src": "app.py",
-            "use": "@vercel/python"
-        }
+      {
+        "src": "app.py",
+        "use": "@vercel/python",
+        "config": { "maxLambdaSize": "50mb" }
+      }
     ],
     "routes": [
-        {
-            "src": "/(.*)",
-            "dest": "app.py"
-        }
-    ],
-    "functions": {
-        "**/*.py": { 
-            "runtime": "python3.9@vercel/python@latest",
-            "maxDuration": 30  
-        }
-    }
-}
+      {
+        "src": "/(.*)",
+        "dest": "app.py"
+      }
+    ]
+  }
+  

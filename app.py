@@ -27,7 +27,7 @@ status = ""
 
 def create_pdf(store, material, description, quantity, authorized_by='Formulário Automatizado', motivo_devolucao='Envio errado'):
     # Configurações iniciais
-    project_root_dir = '.'  # Ou o diretório onde os arquivos devem ser salvos
+    project_root_dir = '.'  
     filename = f'devolucao_{store}.pdf'
     file_path = os.path.join(project_root_dir, filename)
     c = canvas.Canvas(file_path, pagesize=letter)
@@ -35,7 +35,7 @@ def create_pdf(store, material, description, quantity, authorized_by='Formulári
 
 
     # Configurar cor de fundo
-    background_color = HexColor('#875742')  # Cor de fundo escolhida
+    background_color = HexColor('#875742')  
     c.setFillColor(background_color)
     c.rect(0, 0, width, height, fill=True, stroke=False)
 
