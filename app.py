@@ -14,6 +14,7 @@ from base import lojas
 from materials import materials
 from flask_socketio import SocketIO, emit
 from reportlab.lib.pagesizes import letter
+from reportlab.lib.colors import HexColor
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
 from configs import EMAIL_SETTINGS
@@ -101,51 +102,71 @@ def send_email_with_attachment(send_to, subject, body, file_path):
 
 
 #FUNÇÃO PARA CRIAR O PDF DE AUTORIZAÇÃO DA LOJA
-def create_pdf(store, material, description, quantity, authorized_by='Formulário Automatizado'):
+def create_pdf(store, material, description, quantity, authorized_by='Formulário Automatizado', motivo_devolucao='Envio errado'):
+    # Configurações iniciais
     project_root_dir = '.'  
     filename = f'devolucao_{store}.pdf'
     file_path = os.path.join(project_root_dir, filename)
-    
     c = canvas.Canvas(file_path, pagesize=letter)
-    width, height = letter
+    width, height = letter 
+
+
+    #Configurar cor de fundo
+    background_color = HexColor('#875742')  
+    c.setFillColor(background_color)
+    c.rect(0, 0, width, height, fill=True, stroke=False)
+
+    # Adicionar marca d'água
+    c.setFont("Helvetica-Bold", 60)
+    c.setFillAlpha(0.1)  # Torna a marca d'água menos opaca
+    c.setFillColorRGB(0, 0, 0)  # Cor da marca d'água: preto
+    c.drawCentredString(width / 2.0, height / 2.0, "PROIBIDO ALTERAR")
 
     
-    logo_path = os.path.join(project_root_dir, 'static/img/basepdf.png')
-    logo_size = 50
-    c.drawImage(logo_path, 100, height - 40, width=logo_size, height=logo_size, preserveAspectRatio=True)
+    # Restaurar a opacidade para o restante do texto
+    c.setFillAlpha(1)
+    c.setFillColorRGB(1, 1, 1) 
 
-   
-    c.setFont("Helvetica-Bold", 16)
-    c.drawCentredString(width / 2.0, height - 70, "AUTORIZAÇÃO DE DEVOLUÇÃO DE MERCADORIA EM EXCEÇÃO")
+
+    # Adicionar logo
+    #logo_path = os.path.join(project_root_dir, 'static/img/logo.png') 
+    #c.drawImage(logo_path, 100, height - 100, width=2*inch, height=0.5*inch)
+
+    # Configurar o título e subtitulo
+    c.setFont("Helvetica-Bold", 14)
+    c.drawCentredString(width / 2.0, height - 120, "AUTORIZAÇÃO DE DEVOLUÇÃO DE MERCADORIA EM EXCEÇÃO")
     c.setFont("Helvetica-Oblique", 12)
-    c.drawCentredString(width / 2.0, height - 90, "(Anexar junto à Nota Fiscal)")
+    c.drawCentredString(width / 2.0, height - 140, "(Anexar junto à Nota Fiscal)")
 
-    
+    # Configurar informações da autorização
     today = datetime.now()
-    max_date = today + timedelta(days=3)
-    date_format = "%d/%m/%Y"
-    
-    
-    content_start_y_position = height - 130
-    line_spacing = 18  
-
+    max_date = today + timedelta(days=3)  
     c.setFont("Helvetica", 12)
-    c.drawCentredString(width / 2.0, content_start_y_position, f'Loja: {store}')
-    c.drawCentredString(width / 2.0, content_start_y_position - line_spacing, f'Material: {material}')
-    c.drawCentredString(width / 2.0, content_start_y_position - 2 * line_spacing, f'Descrição: {description}')
-    c.drawCentredString(width / 2.0, content_start_y_position - 3 * line_spacing, f'Quantidade: {quantity}')
-    c.drawCentredString(width / 2.0, content_start_y_position - 4 * line_spacing, f'Autorizado por: {authorized_by}')
-    c.drawCentredString(width / 2.0, content_start_y_position - 5 * line_spacing, f'Data da Autorização: {today.strftime(date_format)}')
-    c.drawCentredString(width / 2.0, content_start_y_position - 6 * line_spacing, f'Data Máxima para Envio: {max_date.strftime(date_format)}')
+    c.drawString(100, height - 160, f'LOJA/UNIDADE: {store}')
+    c.drawString(400, height - 160, f'DATA DA AUTORIZAÇÃO: {today.strftime("%d/%m/%Y")}')
+    c.drawString(100, height - 180, f'DATA MÁXIMA PARA ENVIO: {max_date.strftime("%d/%m/%Y")}')
 
-   
+    # Configurar detalhes do produto
+    c.drawString(100, height - 220, f'DESCRICÃO DO PRODUTO: {description}')
+    c.drawString(100, height - 240, f'QUANTIDADE: {quantity}')
+    c.drawString(400, height - 240, f'VALIDADE: {"-"}')  
+    c.drawString(100, height - 260, f'LOTE: {"-"}')  #
+
+    # Configurar autorização e motivo da devolução
+    c.drawString(100, height - 280, f'DEVOLUÇÃO COM O FÍSICO: {"Sim"}')  
+    c.drawString(100, height - 300, f'NOME DE QUEM AUTORIZOU: {authorized_by}')
+    c.drawString(100, height - 320, f'QUEM AUTORIZOU CD OU COMERCIAL: {"CD"}')  
+    c.drawString(100, height - 340, f'MOTIVO DEVOLUÇÃO: {motivo_devolucao}')
+
+    # Configurar validação do documento
     c.setFont("Helvetica-Oblique", 10)
-    footer_y_position = 30
-    c.drawCentredString(width / 2.0, footer_y_position, "Este documento é válido para a devolução dos materiais listados acima.")
+    footer_start_y_position = 100  
+    c.drawString(50, footer_start_y_position, "1° O formulário deve seguir anexo.")
+    c.drawString(50, footer_start_y_position - 15, "2° A quantidade informada deverá ser exata ao que constar no formulário.")
+    c.drawString(50, footer_start_y_position - 30, "3° A mercadoria só poderá retornar ao CD se estiver íntegra.")
 
-    
+    # Finalizar e salvar o PDF
     c.save()
-
     print(f"Arquivo PDF gerado: {file_path}")
     return file_path
 
