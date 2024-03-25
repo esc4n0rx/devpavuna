@@ -29,76 +29,86 @@ status = ""
 
 
 
-#ROTA DE CONFIGURAÇOES
+# ROTA DE CONFIGURAÇÕES: esta rota exibe a página de configurações onde você pode atualizar os materiais autorizados e o status.
 @app.route('/config', methods=['GET'])
 def configurations():
-   
+    # Renderiza o template 'config.html', passando os materiais autorizados e o status atual.
     return render_template('config.html', authorized_materials=', '.join(AUTHORIZED_MATERIALS), status=status)
 
 
-#FUNção DE VERIFICAR SENHA
+# FUNÇÃO DE VERIFICAR SENHA: esta rota é usada para verificar a senha inserida no formulário da página de configurações.
 @app.route('/check-password', methods=['POST'])
 def check_password():
-    password = request.form.get('password')
-    if password == '2024': 
-        return redirect(url_for('configurations')) 
+    password = request.form.get('password')  # Obtém a senha do formulário
+    if password == '2024':  # Verifica se a senha é correta
+        return redirect(url_for('configurations'))  # Redireciona para a página de configurações se a senha estiver correta
     else:
-        return redirect(url_for('index', message='Senha incorreta!'))
+        return redirect(url_for('index', message='Senha incorreta!'))  # Redireciona para a página inicial com uma mensagem de erro
 
 
-#FUNção DE ATUALIZAR CONFIGURAÇOES DE ITENS E STATUS
+# FUNÇÃO DE ATUALIZAR CONFIGURAÇÕES: esta rota atualiza os materiais autorizados e o status com base nos dados definidos na pagina de configurações.
 @app.route('/update-settings', methods=['POST'])
 def update_settings():
     global AUTHORIZED_MATERIALS
     global status
+    # Recebe os materiais autorizados e o status do formulário e atualiza as variáveis globais
     authorized_materials = request.form.get('authorized_materials').split(',')
     status = request.form.get('status')
 
+    # Atualiza a lista de materiais autorizados removendo espaços extras e atualiza o status
     AUTHORIZED_MATERIALS = [material.strip() for material in authorized_materials]
     status = status
+    # Emite uma notificação via SocketIO para informar que as configurações foram atualizadas
     socketio.emit('update_notification', {'message': 'Configurações atualizadas!'})
-    return redirect(url_for('configurations'))
+    return redirect(url_for('configurations'))  # Redireciona para a página de configurações
 
 
-#FUNÇÃO DE LIMPAR CONFIGURAÇOES
+# FUNÇÃO DE LIMPAR CONFIGURAÇÕES: esta rota limpa todas as configurações de materiais autorizados e status.
 @app.route('/clear-settings', methods=['POST'])
 def clear_settings():
     global AUTHORIZED_MATERIALS
     global status
+    # Limpa as variáveis globais, removendo todos os materiais autorizados e redefinindo o status
     AUTHORIZED_MATERIALS = []  
     status = ""  
-    return redirect(url_for('configurations')) 
+    return redirect(url_for('configurations'))  # Redireciona para a página de configurações
 
 
-
-#FUNção DE ENVIO DE E-MAIL
+# FUNÇÃO DE ENVIO DE E-MAIL: esta função é responsável por enviar um e-mail com um anexo.
 def send_email_with_attachment(send_to, subject, body, file_path):
+    # Configuração das informações de e-mail obtidas do arquivo 'configs.py'
     email_user = EMAIL_SETTINGS['EMAIL_USER']
     email_password = EMAIL_SETTINGS['EMAIL_PASSWORD']
     smtp_server = EMAIL_SETTINGS['SMTP_SERVER']
     smtp_port = EMAIL_SETTINGS['SMTP_PORT']
 
+    # Prepara a mensagem de e-mail
     msg = MIMEMultipart()
     msg['From'] = email_user
     msg['To'] = send_to
     msg['Subject'] = subject
 
+    # Anexa o corpo do e-mail
     msg.attach(MIMEText(body, 'plain'))
 
+    # Anexa o arquivo ao e-mail
     with open(file_path, "rb") as attachment:
         part = MIMEApplication(
             attachment.read(),
             Name=os.path.basename(file_path)
         )
+        # Define o cabeçalho para o anexo
         part['Content-Disposition'] = f'attachment; filename="{os.path.basename(file_path)}"'
         msg.attach(part)
 
+    # Conecta ao servidor SMTP e envia o e-mail
     server = smtplib.SMTP(smtp_server, smtp_port)
-    server.starttls()
-    server.login(email_user, email_password)
-    text = msg.as_string()
-    server.sendmail(email_user, msg['To'], text)
-    server.quit()
+    server.starttls()  # Inicia a criptografia TLS
+    server.login(email_user, email_password)  # Faz o login no servidor SMTP
+    text = msg.as_string()  # Converte a mensagem para string
+    server.sendmail(email_user, msg['To'], text)  # Envia o e-mail
+    server.quit()  # Encerra a conexão com o servidor SMTP
+
 
 
 #FUNÇÃO PARA CRIAR O PDF DE AUTORIZAÇÃO DA LOJA
@@ -171,52 +181,53 @@ def create_pdf(store, material, description, quantity, authorized_by='Formulári
     return file_path
 
   
-#FUNÇÃO QUE RETORNA A DESCRISÃO DO MATERIAL 
+# Esta função retorna a descrição de um material. É um endpoint da API que recebe um ID de material e verifica se ele está na lista de materiais autorizados.
 @app.route('/get-description')
 def get_description():
-    material = request.args.get('material')
-    description = ''
-    authorized = material in AUTHORIZED_MATERIALS 
+    material = request.args.get('material')  # Pega o ID do material dos parâmetros da requisição
+    description = ''  # Inicializa a variável de descrição
+    authorized = material in AUTHORIZED_MATERIALS  # Verifica se o material está na lista de materiais autorizados
 
+    # Se houver um ID de material fornecido, converte-o para um inteiro e obtém sua descrição do dicionário 'materials', se existir
     if material:
-        material = int(material)  
-        description = materials.get(material, '')  
+        material = int(material)  # Converte ID do material de string para inteiro
+        description = materials.get(material, '')  # Obtém a descrição, retorna uma string vazia se o ID do material não for encontrado
 
+    # Retorna a descrição do material e o status de autorização como JSON
     return jsonify(description=description, authorized=authorized)
 
 
-#FUNção QUE RETORNA AS LOJAS
+# Esta função retorna uma lista de nomes de lojas. É usada para popular  o dropdown e do usuário.
 def get_stores():
-    stores = []
+    stores = []  # Inicializa a lista de lojas
 
+    # Percorre a lista 'lojas' (assumindo que está pré-definida em algum lugar) e adiciona cada nome de loja à lista 'stores'
     for store_name in lojas:
         stores.append(store_name)
     
-    return stores
+    return stores  # Retorna a lista de lojas
 
 
-#ROTA PRINCIPAL
+# Rota principal da aplicação. Apresenta a página inicial e lida com a submissão do formulário para criação de PDF.
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    message = ''
-    stores = get_stores()
+    message = ''  # Mensagem para feedback do usuário
+    stores = get_stores()  # Obtém a lista de lojas para exibir na interface
 
+    # Se o método da requisição for POST, processa os dados do formulário
     if request.method == 'POST':
-        store = request.form.get('store')
-        material = request.form.get('material')
-        quantity = request.form.get('quantity')
-        description = request.form.get('description')
+        store = request.form.get('store')  # Pega a loja do formulário
+        material = request.form.get('material')  # Pega o material do formulário
+        quantity = request.form.get('quantity')  # Pega a quantidade do formulário
+        description = request.form.get('description')  # Pega a descrição do formulário
 
+        # Cria o PDF e retorna para o usuário fazer o download
         new_filename = create_pdf(store, material, description, quantity)
         return send_file(new_filename, as_attachment=True, download_name=os.path.basename(new_filename))
 
+    # Retorna a página inicial com as informações necessárias
     return render_template('index.html', message=message, stores=stores, status=status)
 
-
-
-
-
-
-
+# Executa a aplicação
 if __name__ == '__main__':
     socketio.run(app, debug=True, host="0.0.0.0", port=5000)
