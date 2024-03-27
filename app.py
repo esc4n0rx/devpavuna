@@ -107,7 +107,7 @@ def configurations():
 @app.route('/check-password', methods=['POST'])
 def check_password():
     password = request.form.get('password')  # Obtém a senha do formulário
-    if password == '':  # Verifica se a senha é correta
+    if password == '2024':  # Verifica se a senha é correta
         return redirect(url_for('configurations'))  # Redireciona para a página de configurações se a senha estiver correta
     else:
         return redirect(url_for('index', message='Senha incorreta!'))  # Redireciona para a página inicial com uma mensagem de erro
