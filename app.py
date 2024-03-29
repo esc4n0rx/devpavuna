@@ -28,7 +28,7 @@ AUTHORIZED_MATERIALS = []
 status = "" 
 
 
-def create_pdf(store, material, description, quantity, authorized_by='Formulário Automatizado', motivo_devolucao='Envio errado'):
+def create_pdf(store, material, description, quantity,validade, authorized_by='Formulário Automatizado', motivo_devolucao='Envio errado'):
     # Configurações iniciais
     project_root_dir = '.'  
     filename = f'devolucao_{store}.pdf'
@@ -75,7 +75,7 @@ def create_pdf(store, material, description, quantity, authorized_by='Formulári
     # Configurar detalhes do produto
     c.drawString(100, height - 220, f'DESCRICÃO DO PRODUTO: {description}')
     c.drawString(100, height - 240, f'QUANTIDADE: {quantity}')
-    c.drawString(400, height - 240, f'VALIDADE: {"-"}') 
+    c.drawString(400, height - 240, f'Validade: {validade}')
     c.drawString(100, height - 260, f'LOTE: {"-"}') 
 
     # Configurar autorização e motivo da devolução
@@ -215,9 +215,10 @@ def index():
         material = request.form.get('material')  # Pega o material do formulário
         quantity = request.form.get('quantity')  # Pega a quantidade do formulário
         description = request.form.get('description')  # Pega a descrição do formulário
+        validade= request.form.get('validade')  # Pega a validade do formulário
 
         # Cria o PDF e retorna para o usuário fazer o download
-        new_filename = create_pdf(store, material, description, quantity)
+        new_filename = create_pdf(store, material, description, quantity,validade)
         return send_file(new_filename, as_attachment=True, download_name=os.path.basename(new_filename))
 
     # Retorna a página inicial com as informações necessárias

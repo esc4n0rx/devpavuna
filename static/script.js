@@ -5,15 +5,18 @@ document.addEventListener('DOMContentLoaded', (event) => {
         const material = document.getElementById('material');
         const quantity = document.getElementById('quantity');
         const description = document.getElementById('description');
+        const validade = document.getElementById('validade');
         const buttons = document.querySelectorAll('button');
 
         if (store) {
             material.disabled = false;
             quantity.disabled = false;
+            validade.disabled = false;
             buttons.forEach(button => button.disabled = false);
         } else {
             material.disabled = true;
             quantity.disabled = true;
+            validade.disabled = true;
             buttons.forEach(button => button.disabled = true);
         }
     };
